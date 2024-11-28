@@ -11,10 +11,21 @@
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.0.10",
+    "@tanstack/solid-query": "^5.61.5",
+    "@types/lodash-es": "^4.17.12",
+    "@xata.io/client": "0.0.0-next.va121e4207b94bfe0a3c025fc00b247b923880930",
+    "date-fns": "^4.1.0",
+    "lodash-es": "^4.17.21",
     "solid-js": "^1.9.2",
+    "valibot": "1.0.0-beta.8",
     "vinxi": "^0.4.3"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15"
   }
 }
