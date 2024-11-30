@@ -6,6 +6,8 @@ import "./app.css";
 import { QueryClientProvider } from "@tanstack/solid-query";
 import { queryClient } from "~/lib/tanstack-query";
 
+import { SolidQueryDevtools } from "@tanstack/solid-query-devtools";
+
 export default function App() {
   return (
     <Router
@@ -14,6 +16,7 @@ export default function App() {
           <QueryClientProvider client={queryClient}>
             <Title>Asteroid Seeker</Title>
             <Suspense>{props.children}</Suspense>
+            <SolidQueryDevtools initialIsOpen={false} />
           </QueryClientProvider>
         </MetaProvider>
       )}

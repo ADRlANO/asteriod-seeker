@@ -1,18 +1,15 @@
 import { createEffect, createSignal, Show } from "solid-js";
+
 import { debounce, isEmpty } from "lodash-es";
 
-import AsteroidCollection from "~/components/asteroid-collection";
-import DateRangePicker from "~/components/date-range-picker";
 import SearchBar from "~/components/search-bar";
-import LoadingSpinner from "~/components/loading";
 import ErrorMessage from "~/components/error-message";
+import LoadingSpinner from "~/components/loading";
+import DateRangePicker from "~/components/date-range-picker";
 
-import { useAsteroids } from "~/lib/queries";
 import AsteroidTable from "~/components/table/asteroids";
-import { createStore } from "solid-js/store";
-import { createMemo } from "solid-js";
-import { createQuery } from "@tanstack/solid-query";
-import { fetchAsteroids } from "~/lib/api";
+import { useAsteroids } from "~/lib/queries";
+import { ControlledSelect } from "~/components/select";
 
 export default function Home() {
   return (
@@ -29,69 +26,102 @@ export default function Home() {
   );
 }
 
+const sortOptions = [
+  {
+    value: "ASC",
+    label: "Ascending",
+  },
+  {
+    value: "DESC",
+    label: "Descending",
+  },
+] as const;
+
+export type SortOption = (typeof sortOptions)[number];
+
 function AsteroidPanel() {
-  const today = new Date().toISOString().split("T")[0];
-  const [startDate, setStartDate] = createSignal(new Date(today));
-  const [endDate, setEndDate] = createSignal(new Date(today));
-  const [searchTerm, setSearchTerm] = createSignal("");
-
-  const setDebouncedSearch = debounce((term) => {
-    setSearchTerm(term);
-  }, 300);
-
-  const params = createMemo(() => ({
-    start_date: startDate(),
-    end_date: endDate(),
-    search_term: searchTerm(),
-  }));
+  const initialParams = {
+    search_term: "",
+    end_date: new Date("2015-09-08"),
+    start_date: new Date("2015-09-07"),
+    sort: {
+      value: "ASC",
+      label: "Ascending",
+    },
+  };
+  const { query, params, setParams } = useAsteroids(initialParams);
+  const [dateValidationResult, setDateValidationResult] = createSignal({
+    valid: true,
+    message: "",
+  });
 
   createEffect(() => {
-    console.log("searchTerm() :>> ", searchTerm());
+    // console.log("options() :>> ", options());
+    // console.group("params");
+    // console.log("params :>> ", params.start_date);
+    // console.log("params :>> ", params.end_date);
+    // console.log("params :>> ", params.sort);
+    // console.groupEnd();
+    // console.group("query");
+    // console.log("query.isLoading :>> ", query.isLoading);
+    // console.log("query.data :>> ", query.data);
+    // console.log("query.error :>> ", query.error);
+    // console.groupEnd();
   });
-  // const asteroidQuery = useAsteroids(params());
-  // const asteroidQuery = useAsteroids(startDate(), endDate(), searchTerm());
-  const queryKey = () => [
-    "asteroids",
-    {
-      start_date: startDate(),
-      end_date: endDate(),
-      search_term: searchTerm(),
-    },
-  ];
-  const asteroidQuery = createQuery(() => ({
-    queryKey: queryKey(),
-    queryFn: async (fn) => {
-      console.log("fn :>> ", fn);
-      return await fetchAsteroids({
-        start_date: startDate(),
-        end_date: endDate(),
-        search_term: searchTerm(),
-      });
-    },
-    experimental_prefetchInRender: true,
-  }));
+
+  const setDebouncedSearch = debounce(
+    (value) => setParams("search_term", value),
+    300
+  );
 
   return (
     <div class="bg-white shadow rounded-lg p-6 mb-8">
-      <Show when={!asteroidQuery.isLoading} fallback={<LoadingSpinner />}>
+      <Show when={!query.error} fallback={<ErrorMessage error={query.error} />}>
         <Show
-          when={!asteroidQuery.error}
-          fallback={<ErrorMessage error={asteroidQuery.error} />}
+          when={!query.isLoading && !isEmpty(query.data)}
+          fallback={<EmptyAsteroids />}
         >
-          <Show
-            when={!isEmpty(asteroidQuery.data)}
-            fallback={<EmptyAsteroids />}
-          >
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <DateRangePicker
-                startDate={startDate()}
-                endDate={endDate()}
-                onStartDateChange={setStartDate}
-                onEndDateChange={setEndDate}
-              />
-              <SearchBar onSearch={setDebouncedSearch} />
-            </div>
-            <AsteroidTable data={asteroidQuery.data} />
+          <div class="grid justify-between md:flex gap-4 mb-6">
+            <Show when={!dateValidationResult().valid}>
+              <ErrorMessage error={dateValidationResult().message} />
+            </Show>
+            <DateRangePicker
+              startDate={params.start_date}
+              endDate={params.end_date}
+              onStartDateChange={(date) => {
+                const validationResult = validateDates(date, params.start_date);
+
+                setDateValidationResult(validationResult);
+                if (validationResult.valid) {
+                  setParams("start_date", date);
+                }
+              }}
+              onEndDateChange={(date) => {
+                const validationResult = validateDates(params.start_date, date);
+
+                setDateValidationResult(validationResult);
+
+                if (validationResult.valid) {
+                  setParams("end_date", date);
+                }
+              }}
+            />
+
+            {/* <SearchBar onSearch={setDebouncedSearch} /> */}
+            <ControlledSelect
+              label="Sort by name"
+              options={sortOptions}
+              value={params.sort}
+              onChange={(value) => {
+                console.log("value :>> ", value);
+                setParams("sort", value);
+              }}
+              labelKey="label"
+              valueKey="value"
+            />
+          </div>
+          <Show when={!query.isLoading} fallback={<LoadingSpinner />}>
+            <AsteroidTable data={query.data} />
           </Show>
         </Show>
       </Show>
@@ -102,10 +132,48 @@ function AsteroidPanel() {
 function EmptyAsteroids() {
   return <div>No asteroids found :(</div>;
 }
+import { isBefore, differenceInDays, parseISO } from "date-fns";
 
-// full_name: "Albion",
-// $collation: { locale: "en", strength: 2 },
+type ValidationResult = {
+  valid: boolean;
+  message: string;
+};
 
-// full_name: {
-//   $text: { $search: "Albion" },
-// }
+/**
+ * Validates start and end dates.
+ * @param startDate - The start date as a string (ISO format) or Date object.
+ * @param endDate - The end date as a string (ISO format) or Date object.
+ * @returns An object containing the validation result.
+ */
+function validateDates(
+  startDate: string | Date,
+  endDate: string | Date
+): ValidationResult {
+  console.log("startDate :>> ", startDate);
+  console.log("endDate :>> ", endDate);
+  const start = typeof startDate === "string" ? parseISO(startDate) : startDate;
+  const end = typeof endDate === "string" ? parseISO(endDate) : endDate;
+
+  // Check if start date is after end date
+  if (start.getTime() !== end.getTime() && !isBefore(start, end)) {
+    return {
+      valid: false,
+      message: "Start date cannot be after the end date.",
+    };
+  }
+
+  // Check if the difference between dates is more than 7 days
+  const diffInDays = differenceInDays(end, start);
+  if (diffInDays > 7) {
+    return {
+      valid: false,
+      message: "End date cannot be more than 7 days after the start date.",
+    };
+  }
+
+  // Dates are valid
+  return {
+    valid: true,
+    message: "Dates are valid.",
+  };
+}

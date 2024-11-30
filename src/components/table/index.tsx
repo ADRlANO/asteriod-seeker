@@ -25,7 +25,7 @@ export function Table<TData>(props: TableProps<TData>) {
   const table = createSolidTable(options);
 
   return (
-    <table class="w-full">
+    <table class="w-full p-3">
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr>
