@@ -25,12 +25,12 @@ export function Table<TData>(props: TableProps<TData>) {
   const table = createSolidTable(options);
 
   return (
-    <table class="w-full p-3">
+    <table class="w-full p-3 border-collapse border border-gray-300">
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr>
             {headerGroup.headers.map((header) => (
-              <th>
+              <th class="border border-gray-300 px-4 py-2 text-left bg-gray-100">
                 {header.isPlaceholder
                   ? null
                   : flexRender(
@@ -46,7 +46,7 @@ export function Table<TData>(props: TableProps<TData>) {
         {table.getRowModel().rows.map((row) => (
           <tr>
             {row.getVisibleCells().map((cell) => (
-              <td>
+              <td class="border border-gray-300 px-4 py-2">
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </td>
             ))}
@@ -57,7 +57,7 @@ export function Table<TData>(props: TableProps<TData>) {
         {table.getFooterGroups().map((footerGroup) => (
           <tr>
             {footerGroup.headers.map((header) => (
-              <th>
+              <th class="border border-gray-300 px-4 py-2 text-left bg-gray-100">
                 {header.isPlaceholder
                   ? null
                   : flexRender(

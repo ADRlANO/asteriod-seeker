@@ -16,12 +16,10 @@ export async function fetchAsteroidsByName(name: string) {
 export async function fetchAsteroidById(id: string) {
   "use server";
 
-  console.log("fetchAsteroidById");
   const url = `${NASA_API_BASE}/${id}?api_key=${process.env.NASA_API_KEY}`;
-  console.log(url);
   const response = await fetch(url);
   const data = await response.json();
-  console.log("data :>> ", data);
+
   return data;
 }
 
@@ -45,17 +43,13 @@ export async function fetchAsteroids(args: AsteroidParams) {
 
   const requestURL = constructUrl(baseNeoApiUrl, params);
 
-  // console.log("FETCH Asteroid Request Params :>> ", params);
-  // console.log("FETCH Asteroid Request URL :>> ", requestURL);
+  console.log("FETCH Asteroid Request Params :>> ", params);
+  console.log("FETCH Asteroid Request URL :>> ", requestURL);
 
-  console.log("requestURL :>> ", requestURL);
   const response = await fetch(requestURL);
   const data = await response.json();
 
   const near_earth_objects = Object.values(data.near_earth_objects).flat();
-
-  const near_earth_objects_dates = Object.keys(data.near_earth_objects);
-  console.log("near_earth_objects_dates", near_earth_objects_dates);
 
   const sortValue = get(params, "sort.value", "");
   if (sortValue === "ASC") {
@@ -77,7 +71,10 @@ function constructUrl(
 ) {
   const url = new URL(baseURL);
 
-  url.searchParams.append("api_key", "DEMO_KEY");
+  url.searchParams.append(
+    "api_key",
+    "Va9lXriDh9gFSftaptfByH5PCRayhbf64I5jT1bt"
+  );
 
   if (params.start_date) {
     url.searchParams.append("start_date", params.start_date);
