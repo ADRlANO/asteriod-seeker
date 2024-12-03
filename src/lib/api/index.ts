@@ -41,12 +41,21 @@ export async function fetchAsteroids(args: AsteroidParams) {
     sort: args.sort,
   };
 
-  const requestURL = constructUrl(baseNeoApiUrl, params);
+  const url = new URL(baseNeoApiUrl);
+
+  url.searchParams.append("api_key", process.env.NASA_API_KEY);
+
+  if (params.start_date) {
+    url.searchParams.append("start_date", params.start_date);
+  }
+  if (params.end_date) {
+    url.searchParams.append("end_date", params.end_date);
+  }
 
   console.log("FETCH Asteroid Request Params :>> ", params);
-  console.log("FETCH Asteroid Request URL :>> ", requestURL);
+  console.log("FETCH Asteroid Request URL :>> ", url);
 
-  const response = await fetch(requestURL);
+  const response = await fetch(String(url));
   const data = await response.json();
 
   const near_earth_objects = Object.values(data.near_earth_objects).flat();
@@ -61,27 +70,4 @@ export async function fetchAsteroids(args: AsteroidParams) {
 
   console.log("near_earth_objects.length :>> ", near_earth_objects.length);
   return near_earth_objects;
-}
-
-//TODO types
-type ISODate = string;
-function constructUrl(
-  baseURL: string,
-  params: { start_date?: ISODate; end_date: ISODate }
-) {
-  const url = new URL(baseURL);
-
-  url.searchParams.append(
-    "api_key",
-    "Va9lXriDh9gFSftaptfByH5PCRayhbf64I5jT1bt"
-  );
-
-  if (params.start_date) {
-    url.searchParams.append("start_date", params.start_date);
-  }
-  if (params.end_date) {
-    url.searchParams.append("end_date", params.end_date);
-  }
-
-  return String(url);
 }
