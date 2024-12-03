@@ -7,9 +7,9 @@ Welcome to the `Asteroid Seeker` repo
 
 ## Tech Stack
 - Metaframework: [Solid Start](https://start.solidjs.com/)
-    - Similar DX as React
-    - Runtime Reactivity
+    - Similar DX as React but with better performance and mental model (imo)
     - Signals-based State Management (Precursor to other frameworks that adopted signals like Preact, Angular, etc)
+    - Runtime Reactivity
     - Routing
     - Bundling
     - Server Functions
@@ -35,11 +35,14 @@ Welcome to the `Asteroid Seeker` repo
     - `/login`
 
 ## To Do
+- [ ] Improve UI
+    - [x] `/asteroid/render` MeteorEffect
+    - [ ] `/asteroid/render/:id` ShootingStarEffect
 - [ ] Enhance Error Handling
-- [ ] Improve Asteroid UI
 - [ ] `/forgot-password`
 - [ ] Info/Error Toasts
 - [ ] Use Data Contracts
 - [ ] FIX Reload ON Favourite Change
 - [ ] Improve types
 - [ ] Pagination
+- [ ] REMOVE `token` WHEN isFalsy
