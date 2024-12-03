@@ -1,6 +1,6 @@
+import { isEmpty } from "lodash-es";
 import { createQuery } from "@tanstack/solid-query";
 import { createStore } from "solid-js/store";
-import { createEffect } from "solid-js";
 
 import { fetchAsteroids, fetchAsteroidById } from "~/lib/api";
 
@@ -11,34 +11,30 @@ type AsteroidParams = {
   sort: any;
 };
 
-export function useAsteroids(initialParams: AsteroidParams) {
+export function useAsteroidByIds(initialParams: AsteroidParams) {
+  console.log("FETCH Asteroid");
   const [params, setParams] = createStore(initialParams);
-
-  createEffect(() => {
-    console.log("start_date :>> ", params.start_date);
-    console.log("end_date :>> ", params.end_date);
-  });
 
   const query = createQuery(() => ({
     queryKey: ["asteroids", params],
     queryFn: async () => fetchAsteroids(params),
     experimental_prefetchInRender: true,
-    initialData: async () => fetchAsteroids(params),
   }));
 
   return { params, setParams, query };
 }
 
-export function useAsteroid(id: string) {
-  console.log("id :>> ", id);
+export function useAsteroidById(id: string) {
+  console.log("FETCH Asteroid BY id :>> ", id);
 
   const query = createQuery(() => ({
     queryKey: ["asteroid", { id }],
     queryFn: async () => {
       return await fetchAsteroidById(id);
     },
+    enabled: !isEmpty(id),
     experimental_prefetchInRender: true,
   }));
 
-  return { query };
+  return { query, data: query.data };
 }

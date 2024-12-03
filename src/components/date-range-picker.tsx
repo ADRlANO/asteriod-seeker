@@ -19,7 +19,7 @@ export default function DateRangePicker(props: DateRangePickerProps) {
         </label>
         <input
           type="date"
-          class="block rounded-md  focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-9 w-48 border border-input"
+          class="block rounded-md  focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-9 w-48 border border-input p-2"
           value={startDate()}
           onChange={(e) => props.onStartDateChange(new Date(e.target.value))}
         />
@@ -28,7 +28,7 @@ export default function DateRangePicker(props: DateRangePickerProps) {
         <label class="flex justify-between items-center w-full">End Date</label>
         <input
           type="date"
-          class="block rounded-md  focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-9 w-48 border border-input"
+          class="block rounded-md  focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-9 w-48 border border-input p-2"
           value={endDate()}
           onChange={(e) => props.onEndDateChange(new Date(e.target.value))}
         />
