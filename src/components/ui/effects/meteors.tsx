@@ -10,7 +10,7 @@ export const Meteors: Component<{
   const meteors = Array.from({ length: number });
 
   return (
-    <div class="absolute h-screen w-screen">
+    <div class="absolute">
       <For each={meteors}>
         {() => (
           <span
